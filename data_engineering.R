@@ -2,6 +2,7 @@ setwd("C:/Users/Chris/Desktop/FWYF-hack/")
 library(tidytext)
 library(tidyverse)
 library(data.table)
+library(reshape2)
 
 lyrics <- as.data.frame(fread("lyrics_final2.csv", sep = ","))
 
