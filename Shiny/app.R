@@ -4,20 +4,24 @@ library(tidyverse)
 library(tidytext)
 library(data.table)
 library(reshape2)
+library(extrafont)
 
 lyric_words <- as.data.frame(fread("lyric_words.csv", sep = ","))
 
 
 # functions
 cloudify <- function(artist_name) {
+  par(bg="#f8f8f8")
   lyric_words %>%
     filter(artist == artist_name) %>%
     inner_join(get_sentiments("bing")) %>%
     count(word, sentiment, sort = T) %>%
     acast(word ~ sentiment, value.var = "n", fill = 0) %>%
-    wordcloud::comparison.cloud(colors = c("#F8766D", "#00BFC4"),
-                                max.words = 200, scale = c(6,0.5), title.size = 3) 
+    wordcloud::comparison.cloud(colors = c("#F8766D", "#00BFC4"), 
+                                max.words = 200, scale = c(6,.5), title.size=.000000000000000000000000001) 
 }
+
+cloudify("coldplay")
 
 sentiment_over_time <- function(artist_names) {
   # result <- lyric_words %>%
@@ -41,13 +45,13 @@ sentiment_over_time <- function(artist_names) {
   #   geom_line(size = 1) +
   #   theme_kani() + 
   #   scale_color_kani()
-  
+  par(bg="#f8f8f8")
   highchart() %>%
     hc_add_series(data = result %>% mutate(sentiment = round(sentiment, 2)), type = "line", hcaes(year, sentiment, group = artist)) %>%
     hc_add_theme(hc_theme_smpl()) %>%
     hc_yAxis(
       title = list(text = "Sentiment"),
-      plotLines = list(list(color = "#000000", width = 2,value = 0))
+      plotLines = list(list(color = "#f8f8f8", width = 2,value = 0))
     ) %>%
     hc_xAxis(title = list(text = "Year")) %>%
     hc_tooltip(
@@ -59,9 +63,11 @@ sentiment_over_time <- function(artist_names) {
     )
 }
 
+sentiment_over_time("coldplay")
+
 position_plot <- function(artist_name) {
   result <- lyric_words %>%
-    filter(artist == artist_name) %>%
+    filter(artist == artist_name) %>% 
     group_by(artist, word) %>%
     summarise(counts = n(),
               median_position = median(word_position)) %>%
@@ -77,10 +83,11 @@ position_plot <- function(artist_name) {
   
   all <- rbind(start_10, end_10)
   
+  par(bg="#f8f8f8")
   all %>%
     mutate(word = reorder(word, -median_position),
            direction = ifelse(median_position < .5, "Beginning", "End")) %>%
-    ggplot(aes(median_position, word, color = direction)) +
+    ggplot(aes(median_position, word, color = direction, bg="#f8f8f8")) +
     geom_point(size = 5) +
     geom_errorbarh(aes(xmin = .5, xmax = median_position), height = 0) +
     geom_vline(xintercept = .5, lty = 2) +
@@ -95,8 +102,8 @@ position_plot <- function(artist_name) {
     labs(
       x = "Position in song",
       y = "Word",
-      title = "Words that occur in either beginning or end",
-      subtitle = "using words that occur atleast 100 times",
+      title = "Word Position in Song",
+      subtitle = "Using the most popular words",
       color = ""
     )
 }
@@ -107,7 +114,8 @@ artist_choices <- lyric_words %>%
 
 # ui
 ui <- shinyUI(fluidPage(
-  titlePanel(title = h1("Some body once told me", align = "center"), windowTitle = "APP"),
+  includeCSS("www/style.css"),
+  titlePanel(title = h1("SongMaster", align = "center"), windowTitle = "APP"),
   fluidRow(
     column(
       8,
@@ -120,7 +128,7 @@ ui <- shinyUI(fluidPage(
             column(12,
                    selectInput(
                      "artist_1", 
-                     label = "Choose and artist to cloudify",
+                     label = "Artist",
                      choices = artist_choices, 
                      selected = "coldplay"
                    )),
@@ -131,13 +139,13 @@ ui <- shinyUI(fluidPage(
           )
         ),
         tabPanel(
-          "Position-Plot",
+          "Position Plot",
           fluidRow(
             column(
               12,
               selectInput(
                 "artist_2", 
-                label = "Choose and artist to analyze",
+                label = "Artist",
                 choices = artist_choices, 
                 selected = "coldplay"
               )
@@ -157,7 +165,7 @@ ui <- shinyUI(fluidPage(
               12,
               selectInput(
                 "artists",
-                label = "Choose an artists or compare multiple ones",
+                label = "Artist(s)",
                 choices = artist_choices,
                 selected = "coldplay",
                 selectize = T,

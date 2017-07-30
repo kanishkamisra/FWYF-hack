@@ -1,0 +1,22 @@
+body {
+  background-color: #f8f8f8;
+}
+
+.nav{
+	margin-bottom: 20px;
+	font-size: 20px;
+}
+
+.control-label{
+	font-size: 15pt;
+	padding: 5px;
+}
+
+h1{
+	padding: 50px;
+	font-size: 52pt;
+}
+
+#sentiment_time, .shiny-bound-output {
+	margin-bottom: 50px;
+}
