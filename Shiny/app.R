@@ -18,7 +18,7 @@ cloudify <- function(artist_name) {
     count(word, sentiment, sort = T) %>%
     acast(word ~ sentiment, value.var = "n", fill = 0) %>%
     wordcloud::comparison.cloud(colors = c("#F8766D", "#00BFC4"), 
-                                max.words = 200, scale = c(6,.5), title.size=.000000000000000000000000001) 
+                                max.words = 200, scale = c(6,.5), title.size=.00000000000001) 
 }
 
 cloudify("coldplay")
@@ -132,6 +132,10 @@ ui <- shinyUI(fluidPage(
                      choices = artist_choices, 
                      selected = "coldplay"
                    )),
+            fluidRow(
+              column(12,
+                     h3("Positive and Negative Common Song Lyrics"))
+            ),
             fluidRow(
               column(12,
                      plotOutput("cloudify"))
